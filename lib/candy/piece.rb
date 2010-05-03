@@ -114,18 +114,6 @@ module Candy
       self.id == subject.id 
     end
     
-    # Candy's magic ingredient. Assigning to any unknown attribute will push that value into the Mongo collection.
-    # Retrieving any unknown attribute will return that value from this record in the Mongo collection.
-    def method_missing(name, *args, &block)
-      if name =~ /(.*)=$/  # We're assigning
-        self[$1.to_sym] = args[0]
-      elsif name =~ /(.*)\?$/  # We're asking
-        (self[$1.to_sym] ? true : false)
-      else
-        self[name]
-      end
-    end
-
     # Hash-like getter. If we don't have a value yet, we pull from the database looking for one.
     # Fields pulled from the database are keyed as symbols in the hash.
     def [](key)
