@@ -42,7 +42,23 @@ describe Candy::CandyArray do
       that = Zagnut(@this.id)
       that.bits[3][2][:foo][0].should == :bar
     end
+    
+    # Github issue #11
+    it "can be updated after load" do
+      that = Zagnut(@this.id)
+      that.bits << 'schadenfreude'
+      @this.refresh
+      @this.bits[3].should == 'schadenfreude'
+    end
 
+    it "is enumerable" do
+      @this.bits.map{|b| b.upcase}.should == ['PEANUT', 'ALMONDS', 'TITANIUM']
+    end
+    
+    it "is sortable" do
+      @this.bits.sort.should == ['almonds', 'peanut', 'titanium']
+    end
+    
     after(:each) do
       Zagnut.collection.remove
     end

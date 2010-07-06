@@ -96,6 +96,8 @@ module Candy
   
   # All of the hard crunchy bits that connect us to a collection within a Mongo database.
   module Crunch
+    autoload :Document, 'candy/crunch/document'
+    
     module ClassMethods
             
       # Returns the connection you gave, or uses the application-level Candy collection.
@@ -163,7 +165,7 @@ module Candy
         when Mongo::Collection
           @collection = val
         when String
-          @collection = db.collection(val)
+          @collection_name = val  # Don't collapse the probability wave until called upon
         when nil
           @collection = nil
         else
@@ -174,7 +176,7 @@ module Candy
       # Returns the collection you gave, or creates a default collection named for the current class.
       # (By which we mean _just_ the class name, not the full module namespace.)
       def collection
-        @collection ||= db.collection(name.sub(/^.*::/,''))
+        @collection ||= db.collection(collection_name)
       end
       
       # Creates an index on the specified property, with an optional direction specified as either :asc or :desc.
@@ -191,6 +193,15 @@ module Candy
       end
       
     private
+      # If we were passed a string on #collection= then we want to pass it to the DB when the collection is referenced,
+      # not right away.  So store it and pass it back on the initial call to #collection.  If nothing, pass the 
+      # class name instead.
+      def collection_name
+        collection_name = @collection_name || name.sub(/^.*::/,'')
+        @collection_name = nil  # Forget this name to avoid confusion on subsequent calls
+        collection_name
+      end
+      
       # If we don't have a username AND password, returns the DB given.  If we do, returns the DB if-and-only-if
       # we can authenticate on that DB.
       def maybe_authenticate(db)
@@ -203,18 +214,22 @@ module Candy
 
     end
     
+    # HERE BEGINNETH THE MODULE PROPER.
+    # (The above were class methods.)
     
-    # We're implementing FindAndModify on Mongo 1.4 until the Ruby driver gets around to being updated...
-    def findAndModify(query, update, sort={})
-      command = OrderedHash[
-        findandmodify: self.collection.name,
-        query: query,
-        update: update,
-        sort: sort
-      ]
-      result = self.class.db.command(command)
+    # The MongoDB collection object that everything saves to.  Defaults to the class's
+    # collection, which in turn defaults to the classname.
+    def collection
+      @__candy_collection ||= self.class.collection
     end
-
+    
+    # This is normally set at the class level (with a default of the classname) but you
+    # can override it on a per-object basis if you need to.
+    def collection=(val)
+      @__candy_collection = val
+    end
+    
+    
     
     def self.included(receiver)
       receiver.extend         ClassMethods

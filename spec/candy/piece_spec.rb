@@ -141,6 +141,14 @@ describe Candy::Piece do
       that.intensity.should == :Yowza
     end
     
+    it "can get particular attributes" do
+      @this.smell = "fruity"
+      @this.feel = "rough"
+      that = Zagnut(@this.id)
+      that.retrieve(:smell)[:smell].should == "fruity" 
+      that.retrieve(:smell).should_not have_key(:feel)
+    end
+    
     # Test class for scoped magic method generation
     class BabyRuth
       include Candy::Piece
@@ -205,6 +213,32 @@ describe Candy::Piece do
       @verifier.count.should == 3
       Zagnut.crunchy(:not_quite).color.should == 'brown'
     end
+    
+    it "can increment a value simply" do
+      @this.inc(:ounces).should == 18
+      @verifier.find_one(ounces: 18)["crunchy"].should == :very
+    end
+    
+    it "can increment a value by a specified positive amount" do
+      @this.inc(:ounces, 5).should == 22
+      @verifier.find_one(ounces: 22)["crunchy"].should == :very
+    end
+    
+    it "can increment a value by a specified negative amount" do
+      @this.inc(:ounces, -5).should == 12
+      @verifier.find_one(ounces: 12)["crunchy"].should == :very
+    end
+    
+    
+    it "knows its keys" do
+      @this.keys.should == [:ounces, :crunchy]
+    end
+
+    it "knows its values" do
+      @this.values.should == [17, :very]
+    end
+
+    
   end
   
   describe "embedding" do
@@ -235,7 +269,7 @@ describe Candy::Piece do
       end
       
       it "cascades deeply" do
-        @this.inner.inner = Zagnut.embed(beauty: 'recursive!')
+        @this.inner.inner = Zagnut.piece(beauty: 'recursive!')
         that = Zagnut(@this.id)
         that.inner.inner.beauty.should == 'recursive!'
       end

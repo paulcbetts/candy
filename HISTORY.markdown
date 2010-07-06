@@ -3,6 +3,52 @@ Candy History
 
 This document aims to provide only an overview.  Further, we've only really been tracking things since **v0.2**.  For obsessive detail, just check out the `git log`.
 
+v0.2.10 - 2010-06-10 (the "This is not my beautiful hash" release)
+------------------------------------------------------------------
+Made arrays enumerable finally (thanks to dominikh with issue #13) and added some vital hash methods to Piece that I needed.
+
+**NOTE:** I've been slow on updates the past few weeks. It's because I got a crazy new idea on how to interface with the Mongo parts (the "Candy::Crunch" part of this gem) and I've been spending my free dev time playing with that. It might take a bit longer, but if I can get it to work, the non-driver parts of Candy will be both simpler and more incredible. Ping me if you want to know more about what I'm babbling about.
+
+* Fixed Github issue #13
+* Added Piece#keys and Piece#values
+
+
+v0.2.9 - 2010-05-14 (the "+1" release)
+--------------------------------------
+Moved methods around again, placing more of the database update methods into Candy::Crunch.  Also began support for two flavors of 
+atomic update methods:
+
+1. _Safe_ methods that call the collection in "safe" mode, meaning that it's much slower but the update is verified and exceptions are returned by the Mongo driver.  These methods also return the new values.  So far supported are **set** and **inc**.
+2. _Unsafe_ or _bang!_ methods that call the collection in "unsafe" mode, for maximum speed but without verification or new values returned.  So far supported are **set!** and **inc!**.
+
+* Refactored; added 'bang!' methods for atomic updates
+
+
+v0.2.8 - 2010-05-13 (the "Holy crap, that was ten pomodoros" release)
+---------------------------------------------------------------------
+Major refactoring to fix a major bug: embedded documents weren't being loaded properly on document retrieval.  This resulted in a lot of code being moved around, and some regrettable circular connascence between Piece and Wrapper that I hope to address later.  Overall, though, it's simpler now.
+
+**API CHANGE:** The `.embed` class method has two new required parameters and is now used _only_ when you know the parent you want to embed something in.  To make a Candy piece that you don't want to be saved right away, use `.piece` instead.
+
+* Fixed Github issue #11
+
+v0.2.7 - 2010-05-05 (the "yes, you MAY put your peanut butter in my chocolate" release)
+--------------------------------------------------------------------------------------
+Found and fixed a convoluted bug that was preventing embedded Candy objects from being saved properly. (It was treating them as _non_-Candy objects, which makes the world a gray and boring place.) While I was at it, refactored some methods and chipped away at some complexity.
+
+**MODERATELY BREAKING CHANGE ALERT:** I've renamed the `to_mongo` and `from_mongo` methods to `to_candy` and `from_candy`.  The initial reason for the _mongo_ names was for some vague semblance of compatibility with [MongoMapper](http://github.com/jnunemaker/mongomapper), but that doesn't make sense since we're treating serialized Candy objects completely differently and expecting them to unpack themselves. I seriously doubt anyone was using these methods yet, but just in case, now you know.
+
+* Fixed embedding bug on Candy objects
+
+v0.2.6 - 2010-05-03 (the "Spanish Fly" release)
+-----------------------------------------------
+Thanks to [xpaulbettsx](http://github.com/xpaulbettsx) for pointing out in issue \#4 that Candy was attempting to connect to localhost prematurely.  
+A stray setting of the collection name in CandyHash was the culprit, causing a cascade of lookups.  Refactored to maintain lazy evaluation of the whole MongoDB object chain, and while I was at it, moved most of the interesting objects into `autoload` conditions in the main Candy file instead of `require`.
+
+* Reorganized for autoloading
+* Fixed issue #4 - tries to connect to host immediately on require
+
+
 v0.2.5 - 2010-05-02 (the "John::Jacob::Jingleheimer::Schmidt" release)
 ----------------------------------------------------------------------
 As I was building an app based on several Sinatra building blocks, I realized that Candy was creating collection names like **Login::Person** and **Profile::Person** with complete module namespaces.  I wanted both of those **Person** classes to be different views on the same data, and having to override the collection name each time was becoming a pain.  I'm not sure that fully namespacing the collection names inside Mongo has much value, and we weren't really documenting that it was happening, so I've simplified things.
