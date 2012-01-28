@@ -8,6 +8,8 @@ Methods like `find`.
 
 Or `save`.
 
+wejfpowejf
+
 ## Overview
 
 When you mix the **Candy::Piece** module into a class, the class gains a Mongo collection as an alter ego.  Objects are saved to Mongo the first time you set a property.  Any property you set thereafter is sent to Mongo _immediately_ and _atomically._  You don't need to declare the properties; we use `method_missing` to drive the getting and setting of any field you want in any record.  Or you can use the hashlike `[]` and `[]=` operators if that's more in your comfort zone.
