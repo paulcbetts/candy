@@ -7,8 +7,6 @@ Candy's goal is to provide the simplest possible object persistence for the [Mon
 Methods like `find`.
 
 Or `save`.
-wefjwefoijwef
-
 
 ## Overview
 
