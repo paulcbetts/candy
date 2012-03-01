@@ -1,6 +1,8 @@
 Candy History
 =============
 
+Gerp
+
 This document aims to provide only an overview.  Further, we've only really been tracking things since **v0.2**.  For obsessive detail, just check out the `git log`.
 
 v0.2.10 - 2010-06-10 (the "This is not my beautiful hash" release)
